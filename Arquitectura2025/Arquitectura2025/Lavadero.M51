@@ -1,0 +1,143 @@
+BL51 BANKED LINKER/LOCATER V4.14                                                        10/22/2024  19:32:35  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V4.14, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE Lavadero.obj TO Lavadero RAMSIZE (256)
+
+
+INPUT MODULES INCLUDED:
+  Lavadero.obj (LAVADERO)
+
+
+LINK MAP OF MODULE:  Lavadero (LAVADERO)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0068H     ABSOLUTE     
+
+
+
+SYMBOL TABLE OF MODULE:  Lavadero (LAVADERO)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        LAVADERO
+  B:0080H.6       SYMBOL        AL_START
+  B:0090H.1       SYMBOL        BMOV_BACK
+  B:0090H.0       SYMBOL        BMOV_FRONT
+  B:0080H.7       SYMBOL        BPOS_START
+  C:0004H         SYMBOL        BUCLE
+  C:005CH         SYMBOL        COCHE_PUESTO
+  C:0057H         SYMBOL        COCHE_SITUADO
+  C:0043H         SYMBOL        ESPERA_COCHE
+  C:0050H         SYMBOL        EVENTOS0_1
+  C:0054H         SYMBOL        EVENTOS0_2
+  C:0067H         SYMBOL        EVENTOS1_1
+  B:00A0H.0       SYMBOL        EV_AGUA
+  B:00A0H.1       SYMBOL        EV_JABON
+  B:0090H.2       SYMBOL        FC_RH_TOP
+  B:0090H.5       SYMBOL        FC_RV_BORDE
+  B:00A0H.4       SYMBOL        FC_RV_CENTRO
+  B:0080H.3       SYMBOL        FICHA_TIPO
+  C:0008H         SYMBOL        INICIALIZAR
+  C:0002H         SYMBOL        INICIO
+  B:00A0H.6       SYMBOL        LED_LNIT
+  B:00A0H.5       SYMBOL        LED_LNOR
+  C:003FH         SYMBOL        LISTA_EST
+  C:004CH         SYMBOL        LISTA_EV_0
+  C:0065H         SYMBOL        LISTA_EV_1
+  C:0039H         SYMBOL        MAQ_ESTADOS
+  C:0046H         SYMBOL        MAQ_EVENTOS_0
+  C:005FH         SYMBOL        MAQ_EVENTOS_1
+  D:0080H         SYMBOL        P0
+  D:0090H         SYMBOL        P1
+  D:00A0H         SYMBOL        P2
+BL51 BANKED LINKER/LOCATER V4.14                                                      10/22/2024  19:32:35  PAGE 2
+
+
+  B:0080H.5       SYMBOL        P_START
+  B:0090H.4       SYMBOL        RH_DOWNTO
+  B:0090H.7       SYMBOL        RH_INTO
+  B:0090H.3       SYMBOL        RH_UPTO
+  B:0090H.6       SYMBOL        RV_OUTTO
+  B:0080H.1       SYMBOL        SEM_ROJO
+  B:0080H.0       SYMBOL        SEM_VERDE
+  B:00A0H.3       SYMBOL        S_CAR
+  B:0080H.4       SYMBOL        S_FICHA
+  B:0080H.2       SYMBOL        S_PLAT
+  B:0020H.0       SYMBOL        TICK_5S
+  C:0000H         LINE#         57
+  C:0002H         LINE#         59
+  C:0004H         LINE#         62
+  C:0006H         LINE#         63
+  C:0008H         LINE#         71
+  C:000AH         LINE#         72
+  C:000CH         LINE#         73
+  C:000EH         LINE#         74
+  C:0010H         LINE#         75
+  C:0012H         LINE#         76
+  C:0014H         LINE#         77
+  C:0016H         LINE#         78
+  C:0018H         LINE#         79
+  C:001AH         LINE#         80
+  C:001CH         LINE#         81
+  C:001EH         LINE#         82
+  C:0020H         LINE#         83
+  C:0022H         LINE#         84
+  C:0024H         LINE#         85
+  C:0026H         LINE#         86
+  C:0028H         LINE#         87
+  C:002AH         LINE#         88
+  C:002CH         LINE#         89
+  C:002EH         LINE#         90
+  C:0030H         LINE#         91
+  C:0032H         LINE#         92
+  C:0034H         LINE#         93
+  C:0036H         LINE#         94
+  C:0038H         LINE#         95
+  C:0039H         LINE#         101
+  C:003AH         LINE#         102
+  C:003BH         LINE#         103
+  C:003EH         LINE#         104
+  C:003FH         LINE#         107
+  C:0041H         LINE#         108
+  C:0043H         LINE#         119
+  C:0045H         LINE#         120
+  C:0046H         LINE#         123
+  C:0047H         LINE#         124
+  C:0048H         LINE#         125
+  C:004BH         LINE#         126
+  C:004CH         LINE#         129
+  C:004EH         LINE#         130
+  C:0050H         LINE#         132
+  C:0053H         LINE#         133
+  C:0054H         LINE#         135
+BL51 BANKED LINKER/LOCATER V4.14                                                      10/22/2024  19:32:35  PAGE 3
+
+
+  C:0056H         LINE#         136
+  C:0057H         LINE#         139
+  C:0059H         LINE#         140
+  C:005BH         LINE#         141
+  C:005CH         LINE#         147
+  C:005EH         LINE#         148
+  C:005FH         LINE#         151
+  C:0060H         LINE#         152
+  C:0061H         LINE#         153
+  C:0064H         LINE#         154
+  C:0065H         LINE#         156
+  C:0067H         LINE#         160
+  -------         ENDMOD        LAVADERO
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0069H BYTE ( 5%) *
+******************************************************************************
+
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

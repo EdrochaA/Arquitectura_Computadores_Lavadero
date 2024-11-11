@@ -1,0 +1,234 @@
+A51 MACRO ASSEMBLER  LAVADERO                                                             10/22/2024 19:32:35 PAGE     1
+
+
+MACRO ASSEMBLER A51 V6.14
+OBJECT MODULE PLACED IN .\Lavadero.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE .\Lavadero.a SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;Variables
+  REG                  2     ESTADO EQU R0
+  REG                  3     EVENTO EQU R1
+                       4     
+                       5     ;Puerto P0
+  0080                 6     SEM_VERDE EQU P0.0
+  0081                 7     SEM_ROJO EQU P0.1
+  0082                 8     S_PLAT EQU P0.2
+  0083                 9     FICHA_TIPO EQU P0.3
+  0084                10     S_FICHA EQU P0.4
+  0085                11     P_START EQU P0.5
+  0086                12     AL_START EQU P0.6
+  0087                13     BPOS_START EQU P0.7
+                      14     
+                      15     ;Puerto P1
+  0090                16     BMOV_FRONT EQU P1.0
+  0091                17     BMOV_BACK EQU P1.1
+  0092                18     FC_RH_TOP EQU P1.2
+  0093                19     RH_UPTO EQU P1.3
+  0094                20     RH_DOWNTO  EQU P1.4
+  0095                21     FC_RV_BORDE EQU P1.5
+  0096                22     RV_OUTTO EQU P1.6
+  0097                23     RH_INTO EQU P1.7
+                      24     
+                      25     ;Puerto P2
+  00A0                26     EV_AGUA EQU P2.0
+  00A1                27     EV_JABON EQU P2.1
+  00A3                28     S_CAR EQU P2.3
+  00A4                29     FC_RV_CENTRO EQU P2.4
+  00A5                30     LED_LNOR EQU P2.5
+  00A6                31     LED_LNIT EQU P2.6
+                      32     
+                      33     ;Variables
+  0000                34     tick_5s EQU 0x20.0
+                      35     
+                      36     ;#########################################################################
+                      37     ;                       INTERRUPCIONES
+                      38     ;#########################################################################
+                      39     ;ORG 0x0B                       ;TIMER0
+                      40     ;       ACALL SUB_TIMER         ; 5s
+                      41     
+                      42     ;*********************** TIMER *******************************************
+                      43     ;SUBTIMER:
+                      44     ;       PUSH ACC
+                      45     ;       PUSH PSW
+                      46     ;       MOV TH0,
+                      47     ;       MOV TL0,
+                      48     ;       SETB tick_5s
+                      49     ;       INC cont_5s
+                      50     ;       MOV A, cont_5s
+                      51     ;       CLR C
+                      52     ;       SUBB 
+                      53     ;#########################################################################
+                      54     ;                       PROGRAMA PRINCIPAL
+                      55     ;#########################################################################
+0000                  56     ORG     0x00
+0000 1102             57             ACALL INICIO
+0002                  58     INICIO:
+A51 MACRO ASSEMBLER  LAVADERO                                                             10/22/2024 19:32:35 PAGE     2
+
+0002 1108             59             ACALL INICIALIZAR
+0004                  60     BUCLE:
+                      61             ;ACALL GEN_EVE
+0004 1139             62             ACALL MAQ_ESTADOS
+0006 0104             63             AJMP BUCLE
+                      64     
+                      65     
+                      66     ;#########################################################################
+                      67     ;                       INICIALIZACIONES
+                      68     ;#########################################################################
+                      69     
+0008                  70     INICIALIZAR:
+0008 7800             71             MOV ESTADO, #0x00
+000A 7900             72             MOV EVENTO, #0x00
+000C D280             73             SETB SEM_VERDE
+000E C281             74             CLR SEM_ROJO
+0010 C282             75             CLR S_PLAT
+0012 C283             76             CLR FICHA_TIPO  
+0014 C284             77             CLR S_FICHA     
+0016 C285             78             CLR P_START     
+0018 C286             79             CLR AL_START    
+001A C287             80             CLR BPOS_START  
+001C C290             81             CLR BMOV_FRONT  
+001E C291             82             CLR BMOV_BACK   
+0020 C292             83             CLR FC_RH_TOP   
+0022 C293             84             CLR RH_UPTO     
+0024 C294             85             CLR RH_DOWNTO   
+0026 C295             86             CLR FC_RV_BORDE
+0028 C296             87             CLR RV_OUTTO    
+002A C297             88             CLR RH_INTO
+002C C2A0             89             CLR EV_AGUA
+002E C2A1             90             CLR EV_JABON
+0030 C2A3             91             CLR S_CAR
+0032 C2A4             92             CLR FC_RV_CENTRO
+0034 C2A5             93             CLR LED_LNOR
+0036 C2A6             94             CLR LED_LNIT
+0038 22               95             RET
+                      96     ;#########################################################################
+                      97     ;                       MÁQUINA DE ESTADOS
+                      98     ;#########################################################################
+                      99     
+0039                 100     MAQ_ESTADOS:
+0039 E8              101             MOV A, ESTADO
+003A 23              102             RL A
+003B 90003F          103             MOV DPTR, #LISTA_EST
+003E 73              104             JMP @A+DPTR
+                     105     
+003F                 106     LISTA_EST:
+003F 0143            107             AJMP ESPERA_COCHE
+0041 015C            108             AJMP COCHE_PUESTO
+                     109             ;AJMP ALARMA
+                     110             ;AJMP PONER_PUENTE
+                     111             ;AJMP ENJABONADO
+                     112             ;AJMP RODILLOS
+                     113     
+                     114     ;#########################################################################
+                     115     ;                       ESTADO 0
+                     116     ;#########################################################################
+                     117     
+0043                 118     ESPERA_COCHE:
+0043 1146            119             ACALL MAQ_EVENTOS_0
+0045 32              120             RETI
+                     121     
+0046                 122     MAQ_EVENTOS_0:
+0046 E9              123             MOV A, EVENTO
+0047 23              124             RL A
+A51 MACRO ASSEMBLER  LAVADERO                                                             10/22/2024 19:32:35 PAGE     3
+
+0048 90004C          125             MOV DPTR, #LISTA_EV_0
+004B 73              126             JMP @A+DPTR
+                     127     
+004C                 128     LISTA_EV_0:
+004C 0150            129             AJMP EVENTOS0_1
+004E 0154            130             AJMP EVENTOS0_2
+0050                 131     EVENTOS0_1:
+0050 208104          132             JB SEM_ROJO, COCHE_SITUADO
+0053 22              133             RET
+0054                 134     EVENTOS0_2:
+0054 7801            135             MOV ESTADO, #0x01
+0056 22              136             RET
+                     137     ;Acción estado_0
+0057                 138     COCHE_SITUADO:
+0057 7901            139             MOV EVENTO, #0x01
+0059 C280            140             CLR SEM_VERDE
+005B 22              141             RET
+                     142     
+                     143     ;#########################################################################
+                     144     ;                       ESTADO 1
+                     145     ;#########################################################################
+005C                 146     COCHE_PUESTO:
+005C 115F            147             ACALL MAQ_EVENTOS_1
+005E 22              148             RET
+                     149     
+005F                 150     MAQ_EVENTOS_1:
+005F E9              151             MOV A, EVENTO
+0060 23              152             RL A
+0061 900065          153             MOV DPTR, #LISTA_EV_1
+0064 73              154             JMP @A+DPTR
+0065                 155     LISTA_EV_1:
+0065 0167            156             AJMP EVENTOS1_1
+                     157             ;AJMP EVENTOS1_2
+                     158     
+0067                 159     EVENTOS1_1:
+0067 22              160             RET
+                     161     
+                     162     
+                     163     
+                     164     END
+A51 MACRO ASSEMBLER  LAVADERO                                                             10/22/2024 19:32:35 PAGE     4
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+AL_START . . . . .  B ADDR   0080H.6 A   
+BMOV_BACK. . . . .  B ADDR   0090H.1 A   
+BMOV_FRONT . . . .  B ADDR   0090H.0 A   
+BPOS_START . . . .  B ADDR   0080H.7 A   
+BUCLE. . . . . . .  C ADDR   0004H   A   
+COCHE_PUESTO . . .  C ADDR   005CH   A   
+COCHE_SITUADO. . .  C ADDR   0057H   A   
+ESPERA_COCHE . . .  C ADDR   0043H   A   
+ESTADO . . . . . .    REG    R0          
+EVENTO . . . . . .    REG    R1          
+EVENTOS0_1 . . . .  C ADDR   0050H   A   
+EVENTOS0_2 . . . .  C ADDR   0054H   A   
+EVENTOS1_1 . . . .  C ADDR   0067H   A   
+EV_AGUA. . . . . .  B ADDR   00A0H.0 A   
+EV_JABON . . . . .  B ADDR   00A0H.1 A   
+FC_RH_TOP. . . . .  B ADDR   0090H.2 A   
+FC_RV_BORDE. . . .  B ADDR   0090H.5 A   
+FC_RV_CENTRO . . .  B ADDR   00A0H.4 A   
+FICHA_TIPO . . . .  B ADDR   0080H.3 A   
+INICIALIZAR. . . .  C ADDR   0008H   A   
+INICIO . . . . . .  C ADDR   0002H   A   
+LED_LNIT . . . . .  B ADDR   00A0H.6 A   
+LED_LNOR . . . . .  B ADDR   00A0H.5 A   
+LISTA_EST. . . . .  C ADDR   003FH   A   
+LISTA_EV_0 . . . .  C ADDR   004CH   A   
+LISTA_EV_1 . . . .  C ADDR   0065H   A   
+MAQ_ESTADOS. . . .  C ADDR   0039H   A   
+MAQ_EVENTOS_0. . .  C ADDR   0046H   A   
+MAQ_EVENTOS_1. . .  C ADDR   005FH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P_START. . . . . .  B ADDR   0080H.5 A   
+RH_DOWNTO. . . . .  B ADDR   0090H.4 A   
+RH_INTO. . . . . .  B ADDR   0090H.7 A   
+RH_UPTO. . . . . .  B ADDR   0090H.3 A   
+RV_OUTTO . . . . .  B ADDR   0090H.6 A   
+SEM_ROJO . . . . .  B ADDR   0080H.1 A   
+SEM_VERDE. . . . .  B ADDR   0080H.0 A   
+S_CAR. . . . . . .  B ADDR   00A0H.3 A   
+S_FICHA. . . . . .  B ADDR   0080H.4 A   
+S_PLAT . . . . . .  B ADDR   0080H.2 A   
+TICK_5S. . . . . .  B ADDR   0020H.0 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
