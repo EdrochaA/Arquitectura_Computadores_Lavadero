@@ -6,7 +6,30 @@ ACT0 EQU R3
 ANT1 EQU R4
 ACT1 EQU R5
 ANT2 EQU R6
-ACT3 EQU R7
+ACT2 EQU R7
+EV1 EQU 0x20.0
+EV2 EQU 0x20.1
+EV3 EQU 0x20.2
+EV4 EQU 0x20.3
+EV5 EQU 0x20.4
+EV6 EQU 0x20.0
+EV7 EQU 0x20.6
+EV8 EQU 0x20.7
+EV9 EQU 0x21.0
+EV10 EQU 0x21.1
+EV11 EQU 0x21.2
+EV12 EQU 0x21.3
+EV13 EQU 0x21.4
+EV14 EQU 0x21.5
+EV15 EQU 0x21.6
+EV16 EQU 0x21.7
+EV17 EQU 0x22.0
+EV18 EQU 0x22.1
+EV19 EQU 0x22.2
+EV20 EQU 0x22.3
+EV21 EQU 0x22.4
+EV22 EQU 0x22.5
+EV23 EQU 0x22.6
 
 ;Puerto P0
 SEM_VERDE EQU P0.0
@@ -63,8 +86,9 @@ ORG	0x00
 	ACALL INICIO
 INICIO:
 	ACALL INICIALIZAR
+
 BUCLE:
-	;ACALL GEN_EVE
+	ACALL GEN_EVE
 	ACALL MAQ_ESTADOS
 	AJMP BUCLE
 
@@ -76,8 +100,12 @@ BUCLE:
 INICIALIZAR:
 	MOV ESTADO, #0x00
 	MOV EVENTO, #0x00
-	MOV ANT, #0x00
-	MOV ACT, #0x00
+	MOV ANT0, #0x00
+	MOV ACT0, #0x00
+	MOV ANT1, #0x00
+	MOV ACT1, #0x00
+	MOV ANT2, #0x00
+	MOV ACT2, #0x00
 	SETB SEM_VERDE
 	CLR SEM_ROJO
 	CLR S_PLAT
@@ -93,13 +121,36 @@ INICIALIZAR:
 	CLR RH_DOWNTO	
 	CLR FC_RV_BORDE
 	CLR RV_OUTTO	
-	CLR RH_INTO
+	CLR RV_INTO
 	CLR EV_AGUA
 	CLR EV_JABON
 	CLR S_CAR
 	CLR FC_RV_CENTRO
 	CLR LED_LNOR
 	CLR LED_LINT
+	CLR EV1
+	CLR EV2
+	CLR EV3
+	CLR EV4
+	CLR EV5
+	CLR EV6
+	CLR EV7
+	CLR EV8
+	CLR EV9
+	CLR EV10
+	CLR EV11
+	CLR EV12
+	CLR EV13
+	CLR EV14
+	CLR EV15
+	CLR EV16
+	CLR EV17
+	CLR EV18
+	CLR EV19
+	CLR EV20
+	CLR EV21
+	CLR EV22
+	CLR EV23
 	RET
 ;#########################################################################
 ;			MÁQUINA DE ESTADOS
@@ -125,13 +176,7 @@ LISTA_EST:
 	AJMP SECADO;         Estado10
 	AJMP RETIRAR_COCHE;  Estado11
 	
-
-;#########################################################################
-;			ESTADO 0
-;#########################################################################
-
-ESPERA_COCHE:
-    
+GEN_EVE:
 
     ; VERIFICACION DE LOS BITS DEL PUERTO 0
     MOV A, ACT0             
@@ -140,82 +185,78 @@ ESPERA_COCHE:
 
     MOV A, ACT0              
     XRL A, ANT0              ; XOR con el valor anterior para detectar cambios
-    JZ PUERTO1_0           
+    JZ PUERTO1_GV           
     MOV B, ANT0
 
 
     ; Verificación para bit 0.2 (S_PLAT)
-    MOV C, ACC.2   
-    JNC S_FICHA_0     
-    MOV C, B.2
-    JNC ASCENDENTE_SPLAT_0 ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
-    JC DESCENDENTE_SPLAT_0   ; Si ANT.2 era 1 y cambió a 0, es un flanco descendente
+    JNB ACC.2, S_FICHA_GV   
+    JNB B.2, ASCENDENTE_SPLAT   ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
+    JB B.2, DESCENDENTE_SPLAT   ; Si ANT.2 era 1 y cambió a 0, es un flanco descendente
 
-    ASCENDENTE_SPLAT_0:
-    MOV EVENTO, #0x02    ; EVENTO 2
-    ACALL MAQ_EVENTOS_0
-    SJMP S_FICHA_0
+    ASCENDENTE_SPLAT:
+    SETB EV2    ; EVENTO 2
+    SJMP S_FICHA_GV
 
-    DESCENDENTE_SPLAT_0:
-    MOV EVENTO, #0x03    ; EVENTO 3
-    ACALL MAQ_EVENTOS_0
+    DESCENDENTE_SPLAT:
+    SETB EV3   ; EVENTO 3
 
 
     ; Verificación para bit 0.4 (S_FICHA)
-    S_FICHA_0:        
+    S_FICHA_GV:        
+  
+    JNB ACC.4, P_START_GV    
+    JNB B.4, ASCENDENTE_SFICHA ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
 
-    MOV C, ACC.4   
-    JNC P_START_0     
-    MOV C, B.4
-    JNC ASCENDENTE_SFICHA_0 ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
-
-    ASCENDENTE_SFICHA_0:
-    MOV EVENTO, #0x05    ; EVENTO 5
-    SJMP P_START_0
-    ACALL MAQ_EVENTOS_0
+    ASCENDENTE_SFICHA:
+    SETB EV5    ; EVENTO 5
+    SJMP P_START_GV
 
 
     ; Verificación para bit 0.5 (P_START)
-    P_START_0:    
+    P_START_GV:    
+ 
+    JNB ACC.5, PUERTO1_GV     
+    JNB B.5, ASCENDENTE_PSTART ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
 
-    MOV C, ACC.5   
-    JNC PUERTO1_0     
-    MOV C, B.5
-    JNC ASCENDENTE_PSTART_0 ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
-
-    ASCENDENTE_PSTART_0:
-    MOV EVENTO, #0x06    ; EVENTO 6
-    SJMP PUERTO1_0
-    ACALL MAQ_EVENTOS_0
+    ASCENDENTE_PSTART:
+    SETB EV6    ; EVENTO 6
+    SJMP PUERTO1_GV
 
 
 
     ; VERIFICACION DE LOS BITS DEL PUERTO 1
-    PUERTO1_0:    	
+    PUERTO1_GV:    	
     MOV A, ACT1             
     MOV ANT1, A              ; Dar valores a ACT y ANT
     MOV ACT1, P1
 
     MOV A, ACT1              
     XRL A, ANT1              ; XOR con el valor anterior para detectar cambios
-    JZ PUERTO2_0           
+    JZ PUERTO2_GV           
     MOV B, ANT1
+
+    ; Verificación para bit 1.2 (FC_RH_TOP)
+
+    JNB ACC.2, FC_RV_BORDE     
+    JBC B.2, ASCENDENTE_FC_RH_TOP_GV ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
+
+    ASCENDENTE_FC_RH_TOP_GV:
+    SETB EV19    ; EVENTO 19
+    SJMP FC_RV_BORDE 
 
     ; Verificación para bit 1.5 (FC_RV_BORDE)
     FC_RV_BORDE:
-    
-    MOV C, ACC.5   
-    JNC PUERTO2_0     
-    MOV C, B.5
-    JNC ASCENDENTE_FC_RV_BORDE_0 ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
 
-    ASCENDENTE_FC_RV_BORDE_0:
-    MOV EVENTO, #0x10    ; EVENTO 16
-    SJMP PUERTO2_0    
-    ACALL MAQ_EVENTOS_0
+    JNB ACC.5, PUERTO2_GV     
+    JBC B.5, ASCENDENTE_FC_RV_BORDE_GV ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
+
+    ASCENDENTE_FC_RV_BORDE_GV:
+    SETB EV16    ; EVENTO 16
+    SJMP PUERTO2_GV    
 
     ; VERIFICACION DE LOS BITS DEL PUERTO 2
-    PUERTO2_0:
+    PUERTO2_GV:
             
     MOV A, ACT2             
     MOV ANT2, A              ; Dar valores a ACT y ANT
@@ -223,53 +264,190 @@ ESPERA_COCHE:
 
     MOV A, ACT2              
     XRL A, ANT2              ; XOR con el valor anterior para detectar cambios
-    JZ FIN_0           
+    JZ FIN_PUERTOS           
     MOV B, ANT2
 
-    ; Verificación para bit 2.3 (S_CAR)
-    MOV C, ACC.3   
-    JNC FC_RV_CENTRO     
-    MOV C, B.3
-    JNC ASCENDENTE_SCAR_0   ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
-    JC DESCENDENTE_SCAR_0   ; Si ANT.2 era 1 y cambió a 0, es un flanco descendente
+    ; Verificación para bit 2.3 (S_CAR)  
+    JNB ACC.3, FC_RV_CENTRO_GV     
+    JNB B.3, ASCENDENTE_SCAR   ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
+    JC DESCENDENTE_SCAR        ; Si ANT.2 era 1 y cambió a 0, es un flanco descendente
 
-    ASCENDENTE_SCAR_0:
-    MOV EVENTO, #0x08    ; EVENTO 8
-    ACALL MAQ_EVENTOS_0
-    SJMP FC_RV_CENTRO
+    ASCENDENTE_SCAR:
+    SETB EV8    ; EVENTO 8
+    SJMP FC_RV_CENTRO_GV
 
-    DESCENDENTE_SCAR_0:
-    MOV EVENTO, #0x09    ; EVENTO 9
-
-    ACALL MAQ_EVENTOS_0
+    DESCENDENTE_SCAR:
+    SETB EV9    ; EVENTO 9
 
 
     ; Verificación para bit 2.4 (FC_RV_CENTRO)
-    FC_RV_CENTRO:
-    
-    MOV C, ACC.4   
-    JNC FIN_0     
-    MOV C, B.4
-    JNC ASCENDENTE_FC_RV_CENTRO_0 ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
+    FC_RV_CENTRO_GV:
+  
+    JNB ACC.4, FIN_PUERTOS     
+    JNB B.4, ASCENDENTE_FC_RV_CENTRO_GV ; Si ANT.2 era 0 y cambió a 1, es un flanco ascendente
 
-    ASCENDENTE_FC_RV_CENTRO_0:
-    MOV EVENTO, #0x11    ; EVENTO 17
-    SJMP FIN_0
+    ASCENDENTE_FC_RV_CENTRO_GV:
+    SETB EV17    ; EVENTO 17
+    SJMP FIN_PUERTOS
 
 
-    ACALL MAQ_EVENTOS_0
+    FIN_PUERTOS:
 
+    ; SELECTOR DE PRIORIDAD DE LOS FLAGS DE EVENTOS
 
+    JNB EV1, EV2_GV       ; EVENTO 1 ACTIVADO
+    MOV EVENTO, #0x01
+    CLR EV1
+    LJMP FIN_GV
 
+EV2_GV:
+    JNB EV2, EV3_GV       ; EVENTO 2 ACTIVADO
+    MOV EVENTO, #0x02
+    CLR EV2
+    LJMP FIN_GV
 
+EV3_GV:
+    JNB EV3, EV4_GV       ; EVENTO 3 ACTIVADO
+    MOV EVENTO, #0x03
+    CLR EV3
+    LJMP FIN_GV
 
-    FIN_0:
+EV4_GV:
+    JNB EV4, EV5_GV       ; EVENTO 4 ACTIVADO
+    MOV EVENTO, #0x04
+    CLR EV4
+    LJMP FIN_GV
 
+EV5_GV:
+    JNB EV5, EV6_GV       ; EVENTO 5 ACTIVADO
+    MOV EVENTO, #0x05
+    CLR EV5
+    LJMP FIN_GV
+
+EV6_GV:
+    JNB EV6, EV7_GV       ; EVENTO 6 ACTIVADO
+    MOV EVENTO, #0x06
+    CLR EV6
+    LJMP FIN_GV
+
+EV7_GV:
+    JNB EV7, EV8_GV       ; EVENTO 7 ACTIVADO
+    MOV EVENTO, #0x07
+    CLR EV7
+    LJMP FIN_GV
+
+EV8_GV:
+    JNB EV8, EV9_GV       ; EVENTO 8 ACTIVADO
+    MOV EVENTO, #0x08
+    CLR EV8
+    LJMP FIN_GV
+
+EV9_GV:
+    JNB EV9, EV10_GV      ; EVENTO 9 ACTIVADO
+    MOV EVENTO, #0x09
+    CLR EV9
+    LJMP FIN_GV
+
+EV10_GV:
+    JNB EV10, EV11_GV     ; EVENTO 10 ACTIVADO
+    MOV EVENTO, #0x0A
+    CLR EV10
+    SJMP FIN_GV
+
+EV11_GV:
+    JNB EV11, EV12_GV     ; EVENTO 11 ACTIVADO
+    MOV EVENTO, #0x0B
+    CLR EV11
+    SJMP FIN_GV
+
+EV12_GV:
+    JNB EV12, EV13_GV     ; EVENTO 12 ACTIVADO
+    MOV EVENTO, #0x0C
+    CLR EV12
+    SJMP FIN_GV
+
+EV13_GV:
+    JNB EV13, EV14_GV     ; EVENTO 13 ACTIVADO
+    MOV EVENTO, #0x0D
+    CLR EV13
+    SJMP FIN_GV
+
+EV14_GV:
+    JNB EV14, EV15_GV     ; EVENTO 14 ACTIVADO
+    MOV EVENTO, #0x0E
+    CLR EV14
+    SJMP FIN_GV
+
+EV15_GV:
+    JNB EV15, EV16_GV     ; EVENTO 15 ACTIVADO
+    MOV EVENTO, #0x0F
+    CLR EV15
+    SJMP FIN_GV
+
+EV16_GV:
+    JNB EV16, EV17_GV     ; EVENTO 16 ACTIVADO
+    MOV EVENTO, #0x10
+    CLR EV16
+    SJMP FIN_GV
+
+EV17_GV:
+    JNB EV17, EV18_GV     ; EVENTO 17 ACTIVADO
+    MOV EVENTO, #0x11
+    CLR EV17
+    SJMP FIN_GV
+
+EV18_GV:
+    JNB EV18, EV19_GV     ; EVENTO 18 ACTIVADO
+    MOV EVENTO, #0x12
+    CLR EV18
+    SJMP FIN_GV
+
+EV19_GV:
+    JNB EV19, EV20_GV     ; EVENTO 19 ACTIVADO
+    MOV EVENTO, #0x13
+    CLR EV19
+    SJMP FIN_GV
+
+EV20_GV:
+    JNB EV20, EV21_GV     ; EVENTO 20 ACTIVADO
+    MOV EVENTO, #0x14
+    CLR EV20
+    SJMP FIN_GV
+
+EV21_GV:
+    JNB EV21, EV22_GV     ; EVENTO 21 ACTIVADO
+    MOV EVENTO, #0x15
+    CLR EV21
+    SJMP FIN_GV
+
+EV22_GV:
+    JNB EV22, EV23_GV     ; EVENTO 22 ACTIVADO
+    MOV EVENTO, #0x16
+    CLR EV22
+    SJMP FIN_GV
+
+EV23_GV:
+    JNB EV23, EV0_GV      ; EVENTO 23 ACTIVADO
+    MOV EVENTO, #0x17
+    CLR EV23
+    SJMP FIN_GV
+
+EV0_GV:
+    MOV EVENTO, #0x00
+
+FIN_GV:
     RET
 
 
 
-MAQ_EVENTOS_0:
+;#########################################################################
+;			ESTADO 0
+;#########################################################################
+
+ESPERA_COCHE:
+ 
+
+;MAQ_EVENTOS_0:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_0
@@ -316,14 +494,12 @@ EVENTOS0_2:
 	SETB SEM_ROJO
 	CLR SEM_VERDE
 	; AQUI HAY QUE INICIAR EL TIMER DE 5 SEGUNDOS (SI PASAN 5s --> IR AL EVENTO 1)
-	MOV EVENTO, #0x00
 	RET
 
 EVENTOS0_3:
 	SETB SEM_VERDE
 	CLR SEM_ROJO
         ; AQUI HAY QUE REINICIAR EL TIMER DE 5 SEGUNDOS
-        MOV EVENTO, #0x00
 	RET
 
 EVENTOS0_4:
@@ -392,12 +568,8 @@ EVENTOS0_23:
 ;#########################################################################
 COCHE_PUESTO:
 
-    ACALL MAQ_EVENTOS_1
 
-    RET
-
-
-MAQ_EVENTOS_1:
+;MAQ_EVENTOS_1:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_1
@@ -445,8 +617,6 @@ EVENTOS1_4:
 	MOV ESTADO, #0x02
 	SETB AL_START
 	;AQUI HAY QUE EMPEZAR OTRO TIMER DE 30s (SI PASAN 30s --> IR AL EVENTO 7)
-	MOV EVENTO, #0x00
-
 	RET
 
 EVENTOS1_5:
@@ -459,7 +629,6 @@ EVENTOS1_5:
      SETB LED_LINT
 
      INTENSIVO:
-     MOV EVENTO, #0x00
      RET
 
 EVENTOS1_6:
@@ -469,7 +638,6 @@ EVENTOS1_6:
      SETB BMOV_FRONT
 
      NO_FICHA_START_1:
-     MOV EVENTO, #0x00
 
 	RET
 
@@ -530,10 +698,8 @@ EVENTOS1_23:
 ;#########################################################################
 
 ALARMA:
-	ACALL MAQ_EVENTOS_2
-	RET
 
-MAQ_EVENTOS_2:
+;MAQ_EVENTOS_2:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_2
@@ -576,7 +742,6 @@ EVENTOS2_2:
 EVENTOS2_3:
 
      MOV ESTADO, #0x00
-     MOV EVENTO, #0x00
 	RET
 
 EVENTOS2_4:
@@ -592,7 +757,6 @@ EVENTOS2_6:
      SETB BMOV_FRONT
 
      NO_FICHA_START_2:
-     MOV EVENTO, #0x00
 	RET
 
 EVENTOS2_7:
@@ -602,7 +766,6 @@ EVENTOS2_7:
      SETB BMOV_FRONT
 
      NO_FICHA_30_2:
-     MOV EVENTO, #0x00
 	RET
 
 EVENTOS2_8:
@@ -658,10 +821,8 @@ EVENTOS2_23:
 ;#########################################################################
 
 PONER_PUENTE:
-	ACALL MAQ_EVENTOS_3
-	RET
 
-MAQ_EVENTOS_3:
+;MAQ_EVENTOS_3:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_3
@@ -722,7 +883,6 @@ EVENTOS3_8:
      SETB EV_AGUA
      SETB EV_JABON
      CLR BMOV_FRONT
-     MOV EVENTO, #0x00
 	RET
 
 EVENTOS3_9:
@@ -844,7 +1004,6 @@ EVENTOS4_9:
      
      CLR EV_AGUA
      CLR EV_JABON
-     MOV EVENTO, #0x00
      ; avanza 40cm mas: AQUI SE INICIA UNA TIMER DE 4s (CUANDO PASEN 4s --> IR AL EVENTO 10)
 	RET
 
@@ -853,7 +1012,6 @@ EVENTOS4_10:
      MOV ESTADO, #0x05
      SETB RV_INTO
      ;AQUI HAY QUE HACER LO DEL PMW CON LA VELOCIDAD DE ROTACION DE LOS RODILLOS
-     MOV EVENTO, #0x00
 
 	RET
 
@@ -902,10 +1060,9 @@ EVENTOS4_23:
 ;#########################################################################
 
 LIMPIAR_ATRAS:
-	ACALL MAQ_EVENTOS_5
-	RET
 
-MAQ_EVENTOS_5:
+
+;MAQ_EVENTOS_5:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_5
@@ -989,14 +1146,13 @@ EVENTOS5_16:
      CLR RV_OUTTO
      MOV ESTADO, #0x06
      SETB BMOV_BACK
-     MOV EVENTO, #0x00
 	RET
 
 EVENTOS5_17:
 
      CLR RV_INTO
      SETB RV_OUTTO
-     MOV EVENTO #0x00
+     MOV EVENTO, #0x00
 	RET
 
 EVENTOS5_18:
@@ -1024,10 +1180,8 @@ EVENTOS5_23:
 ;#########################################################################
 
 PONER_RODILLOS:
-	ACALL MAQ_EVENTOS_6
-	RET
 
-MAQ_EVENTOS_6:
+;MAQ_EVENTOS_6:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_6
@@ -1088,8 +1242,6 @@ EVENTOS6_8:
      SETB RH_DOWNTO
      SETB RV_INTO
      CLR BMOV_BACK
-     MOV EVENTO, #0x00
-
 	RET
 
 EVENTOS6_9:
@@ -1099,7 +1251,7 @@ EVENTOS6_10:
 	RET
 
 EVENTOS6_11:
-;acciones
+     SETB BMOV_BACK
 	RET
 
 EVENTOS6_12:
@@ -1144,10 +1296,8 @@ EVENTOS6_23:
 ;#########################################################################
 
 RODILLOS:
-	ACALL MAQ_EVENTOS_7
-	RET
 
-MAQ_EVENTOS_7:
+;MAQ_EVENTOS_7:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_7
@@ -1207,6 +1357,7 @@ EVENTOS7_8:
 	RET
 
 EVENTOS7_9:
+;acciones
 	RET
 
 EVENTOS7_10:
@@ -1238,7 +1389,6 @@ EVENTOS7_17:
 	RET
 
 EVENTOS7_18:
-;acciones
 	RET
 
 EVENTOS7_19:
@@ -1262,10 +1412,8 @@ EVENTOS7_23:
 ;#########################################################################
 
 LIMPIAR_DELANTE:
-	ACALL MAQ_EVENTOS_8
-	RET
 
-MAQ_EVENTOS_8:
+;MAQ_EVENTOS_8:
 
 	MOV A, EVENTO
 	RL A
@@ -1378,10 +1526,8 @@ EVENTOS8_23:
 ;#########################################################################
 
 ACLARADO:
-	ACALL MAQ_EVENTOS_9
-	RET
 
-MAQ_EVENTOS_9:
+;MAQ_EVENTOS_9:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_9
@@ -1492,10 +1638,8 @@ EVENTOS9_23:
 ;#########################################################################
 
 SECADO:
-	ACALL MAQ_EVENTOS_10
-	RET
 
-MAQ_EVENTOS_10:
+;MAQ_EVENTOS_10:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_10
@@ -1606,10 +1750,8 @@ EVENTOS10_23:
 ;#########################################################################
 
 RETIRAR_COCHE:
-	ACALL MAQ_EVENTOS_11
-	RET
 
-MAQ_EVENTOS_11:
+;MAQ_EVENTOS_11:
 	MOV A, EVENTO
 	RL A
 	MOV DPTR, #LISTA_EV_11
